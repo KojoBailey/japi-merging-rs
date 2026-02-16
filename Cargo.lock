@@ -5,7 +5,7 @@ version = 4
 [[package]]
 name = "japi"
 version = "0.1.0"
-source = "git+https://github.com/KojoBailey/japi-wrapper-rs.git#1b39fbd1332ff5fde193b32761b6f0c0f8a55e2c"
+source = "git+https://github.com/KojoBailey/japi-wrapper-rs.git#e8aab20e8a1a08ec0adb1e0a7d857aee895072da"
 
 [[package]]
 name = "japi-merging-plugin"

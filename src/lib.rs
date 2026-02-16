@@ -6,7 +6,30 @@ japi::register_mod! {
     desc: "Allows for easy merging of otherwise incompatible mods."
 }
 
+static mut SUB_56C970_ORIGINAL: extern "C" fn() = sub_56c970_hook;
+
+extern "C" fn sub_56c970_hook() {
+    japi::log_debug!("Hooked the CPK loader.");
+    
+    unsafe { SUB_56C970_ORIGINAL(); }
+}
+
 #[unsafe(no_mangle)]
 pub extern "C" fn ModInit() {
+    japi::log_debug!("Attempting to hook...");
+
+    let result = japi::register_hook!(
+        0x56C970,
+        sub_56c970_hook,
+        SUB_56C970_ORIGINAL,
+        "ASBR_LoadPatchCPKs",
+        true
+    );
+
+    let Some(_) = result else {
+        japi::log_fatal!("Failed to hook!");
+        return;
+    };
+
     japi::log_info!("Loaded!");
 }
