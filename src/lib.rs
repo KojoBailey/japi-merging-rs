@@ -6,16 +6,16 @@ japi::register_mod! {
     desc: "Allows for easy merging of otherwise incompatible mods."
 }
 
-static mut SUB_56C970_ORIGINAL: extern "C" fn() = sub_56c970_hook;
+static mut SUB_56C970_ORIGINAL: extern "fastcall" fn() = sub_56c970_hook;
 
-extern "C" fn sub_56c970_hook() {
+extern "fastcall" fn sub_56c970_hook() {
     japi::log_debug!("Hooked the CPK loader.");
     
     unsafe { SUB_56C970_ORIGINAL(); }
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn ModInit() {
+pub extern "stdcall" fn ModInit() {
     japi::log_debug!("Attempting to hook...");
 
     let result = japi::register_hook!(
