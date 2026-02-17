@@ -7,55 +7,60 @@ japi::register_mod! {
 }
 
 struct GameLanguage {
-    steam_title: String,
-    code_3: String,
+    steam_title: &'static str,
+    code_3: &'static str,
 }
+static mut GAME_LANGUAGE: Option<GameLanguage> = None;
 
 static mut GET_GAME_LANGUAGE_ORIGINAL: extern "fastcall" fn(*const u64, *const i32) -> *const u64 = get_game_language_hook;
 
 extern "fastcall" fn get_game_language_hook(a1: *const u64, language_index_ptr: *const i32) -> *const u64 {
     let language_index: i32 = unsafe { *language_index_ptr };
 
-    let game_language = match language_index {
-        0 => GameLanguage {
-            steam_title: String::from("japanese"),
-            code_3: String::from("jpn"),
-        },
-        2 => GameLanguage {
-            steam_title: String::from("french"),
-            code_3: String::from("fre"),
-        },
-        3 => GameLanguage {
-            steam_title: String::from("spanish"),
-            code_3: String::from("spa"),
-        },
-        4 => GameLanguage {
-            steam_title: String::from("german"),
-            code_3: String::from("ger"),
-        },
-        5 => GameLanguage {
-            steam_title: String::from("italian"),
-            code_3: String::from("ita"),
-        },
-        9 => GameLanguage {
-            steam_title: String::from("koreana"),
-            code_3: String::from("kor"),
-        },
-        10 => GameLanguage {
-            steam_title: String::from("tchinese"),
-            code_3: String::from("cht"),
-        },
-        11 => GameLanguage {
-            steam_title: String::from("schinese"),
-            code_3: String::from("chs"),
-        },
-        _ => GameLanguage {
-            steam_title: String::from("english"),
-            code_3: String::from("eng"),
-        }
-    };
+    unsafe {
+        GAME_LANGUAGE = Some(match language_index {
+            0 => GameLanguage {
+                steam_title: "japanese",
+                code_3: "jpn",
+            },
+            2 => GameLanguage {
+                steam_title: "french",
+                code_3: "fre",
+            },
+            3 => GameLanguage {
+                steam_title: "spanish",
+                code_3: "spa",
+            },
+            4 => GameLanguage {
+                steam_title: "german",
+                code_3: "ger",
+            },
+            5 => GameLanguage {
+                steam_title: "italian",
+                code_3: "ita",
+            },
+            9 => GameLanguage {
+                steam_title: "koreana",
+                code_3: "kor",
+            },
+            10 => GameLanguage {
+                steam_title: "tchinese",
+                code_3: "cht",
+            },
+            11 => GameLanguage {
+                steam_title: "schinese",
+                code_3: "chs",
+            },
+            _ => GameLanguage {
+                steam_title: "english",
+                code_3: "eng",
+            }
+        });
 
-    japi::log_info!("Game language: {} ({})", game_language.steam_title, game_language.code_3);
+        if let Some(ref lang) = GAME_LANGUAGE {
+            japi::log_info!("Game language: {} ({})", lang.steam_title, lang.code_3);
+        }
+    }
 
     unsafe { GET_GAME_LANGUAGE_ORIGINAL(a1, language_index_ptr) }
 }
