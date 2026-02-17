@@ -21,6 +21,34 @@ extern "fastcall" fn get_game_language_hook(a1: *const u64, language_index_ptr: 
             steam_title: String::from("japanese"),
             code_3: String::from("jpn"),
         },
+        2 => GameLanguage {
+            steam_title: String::from("french"),
+            code_3: String::from("fre"),
+        },
+        3 => GameLanguage {
+            steam_title: String::from("spanish"),
+            code_3: String::from("spa"),
+        },
+        4 => GameLanguage {
+            steam_title: String::from("german"),
+            code_3: String::from("ger"),
+        },
+        5 => GameLanguage {
+            steam_title: String::from("italian"),
+            code_3: String::from("ita"),
+        },
+        9 => GameLanguage {
+            steam_title: String::from("koreana"),
+            code_3: String::from("kor"),
+        },
+        10 => GameLanguage {
+            steam_title: String::from("tchinese"),
+            code_3: String::from("cht"),
+        },
+        11 => GameLanguage {
+            steam_title: String::from("schinese"),
+            code_3: String::from("chs"),
+        },
         _ => GameLanguage {
             steam_title: String::from("english"),
             code_3: String::from("eng"),
