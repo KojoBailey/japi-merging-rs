@@ -4,7 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [lib]
-crate-type =  ["cdylib"]
+crate-type = ["cdylib"]
+name = "merging"
 
 [dependencies]
 japi = { git = "https://github.com/KojoBailey/japi-wrapper-rs.git" }
+nucc-player-color-param = { git = "https://github.com/KojoBailey/nucc-binary-lib-rs.git" }
+nucc-player-color-param-asbr = { git = "https://github.com/KojoBailey/nucc-binary-asbr-lib-rs.git" }
+nucc-player-color-param-json = { git = "https://github.com/KojoBailey/nucc-json-lib-rs.git" }
