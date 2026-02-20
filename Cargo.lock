@@ -62,7 +62,7 @@ checksum = "f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79"
 [[package]]
 name = "nucc-player-color-param"
 version = "0.1.0"
-source = "git+https://github.com/KojoBailey/nucc-binary-lib-rs.git#8c05d17d55b87b51f2c6a79591bdd7e663494098"
+source = "git+https://github.com/KojoBailey/nucc-binary-lib-rs.git#fdb94fda0144c94e09bc9203b7addb8efabad737"
 dependencies = [
  "indexmap",
 ]
@@ -151,9 +151,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.116"
+version = "2.0.117"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3df424c70518695237746f84cede799c9c58fcb37450d7b23716568cc8bc69cb"
+checksum = "e665b8803e7b1d2a727f4023456bbbbe74da67099c585258af0ad9c5013b9b99"
 dependencies = [
  "proc-macro2",
  "quote",

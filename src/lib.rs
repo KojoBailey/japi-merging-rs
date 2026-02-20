@@ -3,7 +3,6 @@ use nucc_player_color_param_asbr::{from_binary_data, to_binary_data};
 use nucc_player_color_param_json::{from_json, to_json};
 
 use std::os::raw::c_char;
-use std::ffi::CString;
 
 japi::register_mod! {
     title: "Merging",
@@ -123,14 +122,21 @@ impl std::io::Seek for UnsafeReader {
 static mut PARSE_PLAYERCOLORPARAM_ORIGINAL: extern "C" fn(*const u64) -> *const u64 = parse_playercolorparam_hook;
 
 extern "C" fn parse_playercolorparam_hook(cache: *const u64) -> *const u64 {
-    let xfbin_path = CString::new("data/param/battle/PlayerColorParam.bin.xfbin").unwrap();
-    let chunk_name = CString::new("PlayerColorParam").unwrap();
-    let result = unsafe { LOAD_NUCCBINARY_ORIGINAL(xfbin_path.as_ptr(), chunk_name.as_ptr()) };
+    const XFBIN_PATH: *const c_char = c"data/param/battle/PlayerColorParam.bin.xfbin".as_ptr();
+    const CHUNK_NAME: *const c_char = c"PlayerColorParam".as_ptr();
+    let result = unsafe { LOAD_NUCCBINARY_ORIGINAL(XFBIN_PATH, CHUNK_NAME) };
     let mut reader = unsafe { UnsafeReader::new(result as *const u8) };
     let mut data: PlayerColorParam = from_binary_data(&mut reader).unwrap();
-    data.entries.sort_keys();
-    let json = to_json(&data).unwrap();
-    std::fs::write("PlayerColorParam.json", json).unwrap();
+    let json_text = std::fs::read_to_string("japi/merging/param/battle/PlayerColorParam/test.json").unwrap();
+    let json_data = from_json(&json_text).unwrap();
+    let entry_key = nucc_player_color_param::EntryKey {
+        character_id: "2jsp01".to_string(),
+        costume_index: 0,
+        alt_index: 0,
+    };
+    japi::log_debug!("{:#?}", data.entries[&entry_key]);
+    data.merge(&json_data);
+    japi::log_debug!("{:#?}", data.entries[&entry_key]);
     result
 }
 
@@ -170,13 +176,6 @@ pub extern "C" fn ModInit() {
         japi::log_fatal!("Failed to hook!");
         return;
     };
-
-    if let Ok(contents) = std::fs::read_to_string("japi/merging/param/battle/PlayerColorParam/test.json") {
-        let param = from_json(&contents).unwrap();
-        japi::log_debug!("{:#?}", param);
-    } else {
-        japi::log_error!("Could not open JSON file.");
-    }
 
     japi::log_info!("Loaded!");
 }
