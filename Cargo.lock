@@ -41,7 +41,7 @@ checksum = "92ecc6618181def0457392ccd0ee51198e065e016d1d527a7ac1b6dc7c1f09d2"
 [[package]]
 name = "japi"
 version = "0.1.0"
-source = "git+https://github.com/KojoBailey/japi-wrapper-rs.git#1d25d808c7a7f2c38449c16a4f774097bfcbf841"
+source = "git+https://github.com/KojoBailey/japi-wrapper-rs.git#bda5eb3655f00178de0bcc9374d1ef71ac347bbf"
 
 [[package]]
 name = "japi-merging-plugin"
@@ -62,7 +62,7 @@ checksum = "f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79"
 [[package]]
 name = "nucc-player-color-param"
 version = "0.1.0"
-source = "git+https://github.com/KojoBailey/nucc-binary-lib-rs.git#fdb94fda0144c94e09bc9203b7addb8efabad737"
+source = "git+https://github.com/KojoBailey/nucc-binary-lib-rs.git#10363373083d3644f733ceaa34435bdd8721afa1"
 dependencies = [
  "indexmap",
 ]
@@ -70,7 +70,7 @@ dependencies = [
 [[package]]
 name = "nucc-player-color-param-asbr"
 version = "0.1.0"
-source = "git+https://github.com/KojoBailey/nucc-binary-asbr-lib-rs.git#7e9fd530b437efff2df4c9ec364e6d022b25166d"
+source = "git+https://github.com/KojoBailey/nucc-binary-asbr-lib-rs.git#9c02c13b900b957b6e53fae0fb429815b1621402"
 dependencies = [
  "byteorder",
  "indexmap",

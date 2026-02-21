@@ -1,8 +1,9 @@
 use nucc_player_color_param::PlayerColorParam;
-use nucc_player_color_param_asbr::{from_binary_data, to_binary_data};
-use nucc_player_color_param_json::{from_json, to_json};
+use nucc_player_color_param_asbr::{from_binary_data};
+use nucc_player_color_param_json::{from_json};
 
-use std::os::raw::c_char;
+use std::ffi::c_char;
+use std::ffi::CString;
 
 japi::register_mod! {
     title: "Merging",
@@ -11,6 +12,33 @@ japi::register_mod! {
     version: "0.1.0",
     desc: "Allows for easy merging of otherwise incompatible mods."
 }
+
+#[repr(C)]
+struct NuccMemVector {
+    pub unk00: *mut u64,
+    pub unk08: *mut u64,
+    pub unk10: *mut u64,
+    pub start: *const c_char,
+    pub position: *const c_char,
+    pub end: *const c_char,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone)]
+struct NuccMemPlayerColorParam {
+    character_id_hash: u32,
+    costume_index: i32,
+    padding: u64,
+    red: f32,
+    green: f32,
+    blue: f32,
+    alpha: f32,
+}
+
+static mut NUCC_HASH: Option<unsafe extern "C" fn(*const c_char) -> u32> = None;
+static mut RGBA_INT_TO_FLOAT: Option<unsafe extern "C" fn(*const f32, u32) -> *const f32> = None;
+static mut ALLOCATE_PLAYERCOLORPARAM_DATA: Option<unsafe extern "C" fn(
+    *const NuccMemVector, *const NuccMemPlayerColorParam, *const NuccMemPlayerColorParam) -> *const u64> = None;
 
 struct GameLanguage {
     steam_title: &'static str,
@@ -119,30 +147,53 @@ impl std::io::Seek for UnsafeReader {
     }
 }
 
-static mut PARSE_PLAYERCOLORPARAM_ORIGINAL: extern "C" fn(*const u64) -> *const u64 = parse_playercolorparam_hook;
+static mut PARSE_PLAYERCOLORPARAM_ORIGINAL: extern "C" fn(*mut u64) -> *const u64 = parse_playercolorparam_hook;
 
-extern "C" fn parse_playercolorparam_hook(cache: *const u64) -> *const u64 {
+extern "C" fn parse_playercolorparam_hook(cache_wrapper: *mut u64) -> *const u64 {
     const XFBIN_PATH: *const c_char = c"data/param/battle/PlayerColorParam.bin.xfbin".as_ptr();
     const CHUNK_NAME: *const c_char = c"PlayerColorParam".as_ptr();
-    let result = unsafe { LOAD_NUCCBINARY_ORIGINAL(XFBIN_PATH, CHUNK_NAME) };
+    let mut result: *const u64 = unsafe { LOAD_NUCCBINARY_ORIGINAL(XFBIN_PATH, CHUNK_NAME) };
     let mut reader = unsafe { UnsafeReader::new(result as *const u8) };
     let mut data: PlayerColorParam = from_binary_data(&mut reader).unwrap();
     let json_text = std::fs::read_to_string("japi/merging/param/battle/PlayerColorParam/test.json").unwrap();
     let json_data = from_json(&json_text).unwrap();
-    let entry_key = nucc_player_color_param::EntryKey {
-        character_id: "2jsp01".to_string(),
-        costume_index: 0,
-        alt_index: 0,
-    };
-    japi::log_debug!("{:#?}", data.entries[&entry_key]);
     data.merge(&json_data);
-    japi::log_debug!("{:#?}", data.entries[&entry_key]);
+
+    unsafe {
+    let mut buffer_ptr: *mut NuccMemPlayerColorParam;
+    let cache = cache_wrapper.add(1) as *mut NuccMemVector;
+    let mut game_entry: NuccMemPlayerColorParam = std::mem::zeroed();
+    for (key, value) in data.entries.into_iter() {
+        let character_id_c_str = CString::new(key.character_id).unwrap();
+        game_entry.character_id_hash = NUCC_HASH.unwrap()(character_id_c_str.as_ptr());
+        game_entry.costume_index = key.costume_index as i32;
+        result = RGBA_INT_TO_FLOAT.unwrap()(&game_entry.red, value.to_u32()) as *const u64;
+            buffer_ptr = (*cache).position as *mut NuccMemPlayerColorParam;
+            if (*cache).end == (*cache).position {
+                result = ALLOCATE_PLAYERCOLORPARAM_DATA.unwrap()(
+                    cache,
+                    buffer_ptr,
+                    &game_entry
+                );
+            } else {
+                *buffer_ptr = game_entry;
+                (*cache).position = (*cache).position.add(32);
+            }
+    }
+    }
+
     result
 }
 
 #[unsafe(no_mangle)]
 pub extern "C" fn ModInit() {
     japi::log_debug!("Attempting to hook...");
+
+    unsafe {
+        NUCC_HASH = Some(std::mem::transmute(japi::offset_to_module_address(0x6C92A0)));
+        RGBA_INT_TO_FLOAT = Some(std::mem::transmute(japi::offset_to_module_address(0x6DC840)));
+        ALLOCATE_PLAYERCOLORPARAM_DATA = Some(std::mem::transmute(japi::offset_to_module_address(0x47EB58)));
+    }
 
     let Some(_) = japi::register_hook!(
         0x6F1970,
