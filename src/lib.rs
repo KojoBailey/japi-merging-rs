@@ -251,16 +251,16 @@ pub extern "C" fn ModInit() {
         ALLOCATE_PLAYERCOLORPARAM_DATA = Some(std::mem::transmute(japi::offset_to_module_address(0x47EB58)));
     }
 
-    let Some(_) = japi::register_hook!(
-        0x6F1970,
-        get_game_language_hook,
-        GET_GAME_LANGUAGE_ORIGINAL,
-        "get_game_language",
-        true
-    ) else {
-        japi::log_fatal!("Failed to hook!");
-        return;
-    };
+    // let Some(_) = japi::register_hook!(
+    //     0x6F1970,
+    //     get_game_language_hook,
+    //     GET_GAME_LANGUAGE_ORIGINAL,
+    //     "get_game_language",
+    //     true
+    // ) else {
+    //     japi::log_fatal!("Failed to hook!");
+    //     return;
+    // };
 
     let Some(_) = japi::register_hook!(
         0x671C30,
